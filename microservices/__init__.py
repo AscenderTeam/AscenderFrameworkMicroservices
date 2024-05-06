@@ -1,3 +1,4 @@
+from typing import Any
 from microservices.typehints.application import Application
 from microservices.typehints.base import Plugin
 from microservices.typehints.types import ControllerModule
@@ -21,7 +22,7 @@ class AscenderFrameworkMicroservices(Plugin):
         self.loaded_channels: dict[str, tuple[ControllerChannel, ControllerModule]] = {}
         self.consume_executor = None
 
-    def install(self, application: Application, storage: Distributor):
+    def install(self, application: Application, storage: Any):
         self.application = application
         self.distributor = storage
         self.loader = self.application.loader_module
