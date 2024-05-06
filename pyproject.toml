@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ascfmicroservices"
+name = "microservices"
 version = "0.0.1"
 description = "Ascender Framework Microservices is the lightweight plugin for Ascender Framework starting from version 1.1.0 that allows Microservice integration using Redis/RabbitMQ/Kafka/TCP Transport"
 authors = ["Your Name <you@example.com>"]
