@@ -4,7 +4,7 @@ from typing import Any, AsyncIterable, Literal
 from aio_pika import IncomingMessage, Message, Exchange
 from pydantic import BaseModel
 
-from src.microservices.handler import Channel
+from microservices.handler import Channel
 
 
 class CommonContext:
