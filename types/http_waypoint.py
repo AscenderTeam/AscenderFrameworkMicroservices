@@ -1,6 +1,7 @@
 from aiohttp.typedefs import LooseCookies, LooseHeaders
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 
+from core.plugins.plugin_injector import PluginInjector
 from core.registries.service import ServiceRegistry
 from plugins.microservices.waypoints.context import WaypointContext
 from plugins.microservices.waypoints.instance import WaypointInstance
@@ -24,8 +25,7 @@ class HTTPWaypoint:
 
         self.waypoint = waypoint
     
-    def define_waypoint(self):
-        service_registry = ServiceRegistry()
+    def define_waypoint(self, injector: PluginInjector):
         
         _context = WaypointContext(TCPConnector(verify_ssl=self.ssl) if self.keep_connection else None, base_url=self.base_url, ssl=self.ssl,
                                 cookies=self.cookies, headers=self.headers,
@@ -33,12 +33,12 @@ class HTTPWaypoint:
                                 **self.additional_configs)
         self._waypoint = self.waypoint(_context)
         
-        di_parameters = service_registry.get_parameters(self.waypoint)
+        di_parameters = injector.application.service_registry.get_parameters(self.waypoint)
 
         for di_key, di_obj in di_parameters.items():
             setattr(self._waypoint, di_key, di_obj)
         
-        service_registry.add_singletone(self.waypoint, self._waypoint)
+        injector.inject_mvc(self.waypoint, self._waypoint)
     
     async def close_waypoint(self):
         if not self.keep_connection:

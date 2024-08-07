@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any
+from core.plugins.plugin_injector import PluginInjector
 from core.types import ControllerModule
 from plugins.microservices._core.consume_executor import ConsumeExecutor
 from plugins.microservices.backends.rabbitmq import RabbitMQDriver
@@ -63,9 +64,10 @@ async def initialize_channels(consume_executor: ConsumeExecutor, _channels: dict
     for name, channel in _channels.items():
         await consume_executor.define_driver_add((name, channel[1]), channel[0])
 
-def initialize_waypoints(_waypoints: dict[str, "HTTPWaypoint"]):
+def initialize_waypoints(_waypoints: dict[str, "HTTPWaypoint"],
+                         injector: PluginInjector):
     for _, waypoint in _waypoints.items():
-        waypoint.define_waypoint()
+        waypoint.define_waypoint(injector)
 
 async def disable_waypoint_shared_connectors(_waypoints: dict[str, "HTTPWaypoint"]):
     for _, waypoint in _waypoints.items():

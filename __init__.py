@@ -50,7 +50,9 @@ class AscenderFrameworkMicroservices(Plugin):
 
         if self.use_http_waypoints:
             self.loaded_waypoints = prepare_httpwaypoints(self.controllers)
-            initialize_waypoints(self.loaded_waypoints)
+            initialize_waypoints(self.loaded_waypoints, self.injector)
+        
+        self.injector.unleash_update()
 
     async def deinitialize_connections(self):
         for _, live_conneciton in self.live_connections.items():
