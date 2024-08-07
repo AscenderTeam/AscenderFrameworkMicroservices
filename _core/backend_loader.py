@@ -39,7 +39,7 @@ async def prepare_channels(live_connections: LiveConnections, controllers: dict[
                     # TODO: Custom exception
                     raise ValueError("Connection doesn't exist")
 
-            _channels[name] = (controller_channel, config)
+            _channels[controller_channel.channel.__name__] = (controller_channel, config)
     
     return _channels
 
