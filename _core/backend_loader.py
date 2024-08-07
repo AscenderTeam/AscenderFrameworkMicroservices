@@ -55,7 +55,7 @@ def prepare_httpwaypoints(controllers: dict[str, ControllerModule]):
             continue
 
         for controller_waypoint in controller_waypoints:
-            _waypoints[name] = controller_waypoint
+            _waypoints[controller_waypoint.waypoint.__name__] = controller_waypoint
     
     return _waypoints
 
