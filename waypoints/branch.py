@@ -53,7 +53,7 @@ class WaypointBranch:
 
         async with args[0]._context as session:
             async with getattr(session, self.method)(self.path, params=request_data["queries"],
-                                                        json=request_data["body"]) as _response:
+                                                        data=request_data["body"]) as _response:
                 await args[0].update_response(_response)
                 _response.close()
             
