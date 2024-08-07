@@ -38,6 +38,7 @@ class WaypointBranch:
             
             if isinstance(_val, BaseDTO) and self.method not in ["get", "delete"]:
                 body = _val.model_dump_json()
+                body = json.dumps(body)
                 continue
 
             query_parameters[_name] = _val
@@ -54,7 +55,7 @@ class WaypointBranch:
 
         async with args[0]._context as session:
             async with getattr(session, self.method)(self.path, params=request_data["queries"],
-                                                        json=json.dumps(request_data["body"])) as _response:
+                                                        json=request_data["body"]) as _response:
                 await args[0].update_response(_response)
                 _response.close()
             
