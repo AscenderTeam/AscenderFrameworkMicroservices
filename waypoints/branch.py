@@ -1,5 +1,6 @@
 import functools
 from json import JSONDecodeError
+import json
 import re
 from warnings import warn
 from aiohttp import ClientResponse, ClientSession
@@ -36,7 +37,7 @@ class WaypointBranch:
                 continue
             
             if isinstance(_val, BaseDTO) and self.method not in ["get", "delete"]:
-                body = _val.model_dump()
+                body = _val.model_dump_json()
                 continue
 
             query_parameters[_name] = _val
@@ -53,7 +54,7 @@ class WaypointBranch:
 
         async with args[0]._context as session:
             async with getattr(session, self.method)(self.path, params=request_data["queries"],
-                                                        json=request_data["body"]) as _response:
+                                                        json=json.dumps(request_data["body"])) as _response:
                 await args[0].update_response(_response)
                 _response.close()
             
