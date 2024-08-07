@@ -36,7 +36,7 @@ class WaypointBranch:
                 continue
             
             if isinstance(_val, BaseDTO) and self.method not in ["get", "delete"]:
-                body = _val.model_dump_json()
+                body = _val.model_dump()
                 continue
 
             query_parameters[_name] = _val
