@@ -43,7 +43,7 @@ async def prepare_channels(live_connections: LiveConnections, controllers: dict[
                 if isinstance(connection, RedisDriver):
                     raise TypeError("Redis connection isn't supported in channels yet. (WIP)")
 
-            _channels[name] = (controller_channel, config)
+            _channels[controller_channel.channel.__name__] = (controller_channel, config)
     
     return _channels
 
@@ -59,7 +59,7 @@ def prepare_httpwaypoints(controllers: dict[str, ControllerModule]):
             continue
 
         for controller_waypoint in controller_waypoints:
-            _waypoints[name] = controller_waypoint
+            _waypoints[controller_waypoint.waypoint.__name__] = controller_waypoint
     
     return _waypoints
 

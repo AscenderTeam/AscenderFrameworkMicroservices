@@ -1,5 +1,6 @@
 import functools
 from json import JSONDecodeError
+import json
 import re
 from warnings import warn
 from aiohttp import ClientResponse, ClientSession
@@ -37,6 +38,7 @@ class WaypointBranch:
             
             if isinstance(_val, BaseDTO) and self.method not in ["get", "delete"]:
                 body = _val.model_dump_json()
+                body = json.loads(body)
                 continue
 
             query_parameters[_name] = _val
@@ -59,10 +61,13 @@ class WaypointBranch:
             
             if self.serialize_model:
                 response = await callback(*args, **kwargs)
-                if isinstance(response, ClientResponse):
-                    return self.serialize_model.model_validate_json(await response.json()) 
+                if isinstance(response, HTTPResponse):
+                    return self.serialize_model.model_validate(await response.content)
                 
-                return self.serialize_model.model_validate_json(response)
+                if isinstance(response, str):
+                    return self.serialize_model.model_validate_json(response)
+                
+                return self.serialize_model.model_validate(response)
         
         return await callback(*args, **kwargs)
 
