@@ -12,6 +12,15 @@ class RabbitMQConnection(TypedDict):
     default_queue: Optional[str]
 
 
+class RedisConnection(TypedDict):
+    driver: Literal["microservices.backends.redis"]
+    url: NotRequired[Optional[str]]
+    host: NotRequired[str]
+    port: NotRequired[int]
+    password: NotRequired[str]
+    db: NotRequired[str | int]
+
+
 class MainConfig(TypedDict):
-    connections: dict[str, RabbitMQConnection]
+    connections: dict[str, RabbitMQConnection | RedisConnection]
     default_connection: str

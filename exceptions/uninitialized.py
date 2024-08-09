@@ -1,0 +1,2 @@
+class UninitializedServer(Exception):
+    pass

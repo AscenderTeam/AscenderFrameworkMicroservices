@@ -1,0 +1,2 @@
+class UnsupportedConnectionError(Exception):
+    pass

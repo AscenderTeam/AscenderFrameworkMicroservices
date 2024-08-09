@@ -4,6 +4,8 @@ from core.plugins.plugin import Plugin
 from core.types import ControllerModule
 from plugins.microservices._core.backend_loader import disable_waypoint_shared_connectors, initialize_channels, initialize_waypoints, load_backends, prepare_channels, prepare_httpwaypoints
 from plugins.microservices._core.consume_executor import ConsumeExecutor
+from plugins.microservices.redis.engine import RedisEngine
+from plugins.microservices.redis.singleton import RedisEngineSingleton
 from plugins.microservices.types.channels import ControllerChannel
 from plugins.microservices.types.config import MainConfig
 from plugins.microservices.types.connections import LiveConnections
@@ -52,6 +54,7 @@ class AscenderFrameworkMicroservices(Plugin):
             self.loaded_waypoints = prepare_httpwaypoints(self.controllers)
             initialize_waypoints(self.loaded_waypoints, self.injector)
         
+        RedisEngineSingleton(RedisEngine(self.live_connections))
         self.injector.unleash_update()
 
     async def deinitialize_connections(self):

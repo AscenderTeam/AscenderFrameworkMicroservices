@@ -3,8 +3,9 @@ from core.plugins.plugin_injector import PluginInjector
 from core.types import ControllerModule
 from plugins.microservices._core.consume_executor import ConsumeExecutor
 from plugins.microservices.backends.rabbitmq import RabbitMQDriver
+from plugins.microservices.backends.redis import RedisDriver
 from plugins.microservices.types.channels import ControllerChannel
-from plugins.microservices.types.config import RabbitMQConnection
+from plugins.microservices.types.config import RabbitMQConnection, RedisConnection
 from importlib import import_module
 
 from plugins.microservices.types.connections import LiveConnections
@@ -12,7 +13,7 @@ from plugins.microservices.types.connections import LiveConnections
 if TYPE_CHECKING:
     from plugins.microservices.types.http_waypoint import HTTPWaypoint
 
-async def load_backends(connections: dict[str, RabbitMQConnection]):
+async def load_backends(connections: dict[str, RabbitMQConnection | RedisConnection]):
     live_connections = LiveConnections()
     
     for name, connection in connections.items():
@@ -38,6 +39,9 @@ async def prepare_channels(live_connections: LiveConnections, controllers: dict[
                 if not connection:
                     # TODO: Custom exception
                     raise ValueError("Connection doesn't exist")
+                
+                if isinstance(connection, RedisDriver):
+                    raise TypeError("Redis connection isn't supported in channels yet. (WIP)")
 
             _channels[name] = (controller_channel, config)
     
@@ -72,3 +76,5 @@ def initialize_waypoints(_waypoints: dict[str, "HTTPWaypoint"],
 async def disable_waypoint_shared_connectors(_waypoints: dict[str, "HTTPWaypoint"]):
     for _, waypoint in _waypoints.items():
         await waypoint.close_waypoint()
+
+# async def 
