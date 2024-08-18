@@ -43,6 +43,7 @@ class AscenderFrameworkMicroservices(Plugin):
 
     async def initialize_connections(self):
         self.live_connections = await load_backends(self.connections)
+        self.live_connections.select_default(self.config["default_connection"])
         self.application.service_registry.add_singletone(LiveConnections, self.live_connections)
         self.consume_executor = ConsumeExecutor(live_connections=self.live_connections,
                                                 default_connection=self.config["default_connection"])

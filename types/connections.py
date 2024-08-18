@@ -11,8 +11,8 @@ class LiveConnections(dict[str, RabbitMQDriver | RedisDriver]):
     default_connection: str = None
     
     def select_default(self, key: str):
-        if not self.get(key, None):
-            raise KeyError(f"Key {key} not found to set default connection")
+        # if not self.get(key, None):
+        #     raise KeyError(f"Key {key} not found to set default connection")
         self.default_connection = key
     
     def get_default(self):
