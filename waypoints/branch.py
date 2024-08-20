@@ -89,7 +89,7 @@ class WaypointBranch:
             if self.serialize_model:
                 response = await callback(*args, **kwargs)
                 if isinstance(response, HTTPResponse):
-                    return self.serialize_model.model_validate(await response.content)
+                    return self.serialize_model.model_validate(response.content)
                 
                 if isinstance(response, str):
                     return self.serialize_model.model_validate_json(response)
