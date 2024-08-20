@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Literal, NotRequired, Optional, TypedDict
 
 
@@ -21,6 +22,15 @@ class RedisConnection(TypedDict):
     db: NotRequired[str | int]
 
 
+class InternalPrivacyConfig(TypedDict):
+    enabled: bool
+    secret_key: str
+    token_lifetime: timedelta
+    allowed_services: list[str]
+    current_service_id: str
+
+
 class MainConfig(TypedDict):
     connections: dict[str, RabbitMQConnection | RedisConnection]
     default_connection: str
+    internal_privacy: NotRequired[InternalPrivacyConfig]

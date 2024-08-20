@@ -1,13 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from aiohttp.typedefs import LooseCookies, LooseHeaders
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 
 from core.plugins.plugin_injector import PluginInjector
-from core.registries.service import ServiceRegistry
 from plugins.microservices.waypoints.context import WaypointContext
 from plugins.microservices.waypoints.instance import WaypointInstance
 
+if TYPE_CHECKING:
+    from plugins.microservices.waypoints.registry import WaypointRegistry
+
 
 class HTTPWaypoint:
+    waypoint_register: WaypointRegistry | None
     def __init__(self, waypoint: type[WaypointInstance], base_url: str,
                  keep_connection: bool = False,
                  cookies: LooseCookies | None = None,
@@ -24,10 +30,12 @@ class HTTPWaypoint:
         self.additional_configs = additional_configs
 
         self.waypoint = waypoint
+        self.waypoint_register = None
     
     def define_waypoint(self, injector: PluginInjector):
         
-        _context = WaypointContext(TCPConnector(verify_ssl=self.ssl) if self.keep_connection else None, base_url=self.base_url, ssl=self.ssl,
+        _context = WaypointContext(TCPConnector(verify_ssl=self.ssl) if self.keep_connection else None, 
+                                   self.waypoint_register, base_url=self.base_url, ssl=self.ssl,
                                 cookies=self.cookies, headers=self.headers,
                                 auth=self.auth, raise_for_status=self.raise_for_status,
                                 **self.additional_configs)

@@ -48,29 +48,29 @@ async def prepare_channels(live_connections: LiveConnections, controllers: dict[
     return _channels
 
 
-def prepare_httpwaypoints(controllers: dict[str, ControllerModule]):
-    from plugins.microservices.types.http_waypoint import HTTPWaypoint
+# def prepare_httpwaypoints(controllers: dict[str, ControllerModule]):
+#     from plugins.microservices.types.http_waypoint import HTTPWaypoint
     
-    _waypoints = {}
-    for name, config in controllers.items():
-        controller_waypoints: list[HTTPWaypoint] | None
+#     _waypoints = {}
+#     for name, config in controllers.items():
+#         controller_waypoints: list[HTTPWaypoint] | None
 
-        if not (controller_waypoints := config.get("plugin_configs", {}).get("waypoints", None)):
-            continue
+#         if not (controller_waypoints := config.get("plugin_configs", {}).get("waypoints", None)):
+#             continue
 
-        for controller_waypoint in controller_waypoints:
-            _waypoints[controller_waypoint.waypoint.__name__] = controller_waypoint
+#         for controller_waypoint in controller_waypoints:
+#             _waypoints[controller_waypoint.waypoint.__name__] = controller_waypoint
     
-    return _waypoints
+#     return _waypoints
 
 
 async def initialize_channels(consume_executor: ConsumeExecutor, _channels: dict[str, tuple[ControllerChannel, ControllerModule]]):
     for name, channel in _channels.items():
         await consume_executor.define_driver_add((name, channel[1]), channel[0])
 
-def initialize_waypoints(_waypoints: dict[str, "HTTPWaypoint"],
+def initialize_waypoints(_waypoints: list["HTTPWaypoint"],
                          injector: PluginInjector):
-    for _, waypoint in _waypoints.items():
+    for waypoint in _waypoints:
         waypoint.define_waypoint(injector)
 
 async def disable_waypoint_shared_connectors(_waypoints: dict[str, "HTTPWaypoint"]):

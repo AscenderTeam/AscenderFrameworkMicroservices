@@ -1,14 +1,13 @@
 import functools
-from json import JSONDecodeError
 import json
+from logging import warn
 import re
-from warnings import warn
-from aiohttp import ClientResponse, ClientSession
-from fastapi import Request
 from pydantic import validate_call
 from typing import Any, Awaitable, Callable, Literal, TypeVar
 
 from core.optionals import BaseDTO, BaseResponse
+from core.registries.service import ServiceRegistry
+from plugins.microservices.security_manager import SecurityManager
 from plugins.microservices.types.http_response import HTTPResponse
 from plugins.microservices.waypoints.context import WaypointContext
 
@@ -18,7 +17,7 @@ C = TypeVar("C")
 D = TypeVar("D")
 
 
-class WaypointBranch:
+class WaypointProtectedBranch:
     def __init__(self, path: str, 
                  method: Literal["get", "post", "put", "patch", "delete"],
                  *,
@@ -59,25 +58,26 @@ class WaypointBranch:
     
     async def prepare_headers(self, headers: dict[str, Any] | None,
                         context: WaypointContext):
-        if context.waypoint_registry.identity:
-            if request := await context.waypoint_registry._usecontext():
-                if not (auth_headers := request.headers.get("Authorization", None)):
-                    return headers
-            
-                if not headers:
-                    return {"Authorization": auth_headers}
-                return {**headers, "Authorization": auth_headers}
-            
+        service_registry = ServiceRegistry()
+
+        security_manager = service_registry.get_singletone(SecurityManager)
+        if not security_manager:
+            warn("You are using inner branch without setting private communication!")
             return headers
         
-        if not headers:
-            return None
+        _token = await security_manager.use_token()
         
-        return headers
+        if not headers:
+            return {
+                "Authorization": f"Bearer {_token}"
+            }
+        
+        return {**headers, "Authorization": f"Bearer {_token}"}
 
     async def invoke_request(self, callback: Callable[..., Awaitable[Any]], *args, **kwargs):
         request_data = self.prepare_request(callback, *args, **kwargs)
         headers = await self.prepare_headers(request_data["headers"], args[0]._context)
+
         self.format_path(request_data["paths"])
 
         async with args[0]._context as session:

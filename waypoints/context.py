@@ -1,15 +1,22 @@
+from typing import TYPE_CHECKING
 from plugins.microservices.types.http_response import HTTPResponse
 from aiohttp import ClientSession, TCPConnector
 from contextvars import ContextVar
 
+if TYPE_CHECKING:
+    from plugins.microservices.waypoints.registry import WaypointRegistry
+
 
 class WaypointContext:
     session: ContextVar[ClientSession | None] | ClientSession
+    waypoint_registry: "WaypointRegistry"
 
-    def __init__(self, shared_connector: TCPConnector | None, **session_scope) -> None:
+    def __init__(self, shared_connector: TCPConnector | None, 
+                 waypoint_registry: "WaypointRegistry", **session_scope) -> None:
         self.shared_connector = shared_connector
         self.session = ContextVar("session", default=None)
         self.ssl = session_scope["ssl"]
+        self.waypoint_registry = waypoint_registry
         del session_scope["ssl"]
 
         if shared_connector:
