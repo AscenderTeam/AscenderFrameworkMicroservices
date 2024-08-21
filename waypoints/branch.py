@@ -5,7 +5,7 @@ import re
 from warnings import warn
 from aiohttp import ClientResponse, ClientSession
 from fastapi import Request
-from pydantic import validate_call
+from pydantic import RootModel, validate_call
 from typing import Any, Awaitable, Callable, Literal, TypeVar
 
 from core.optionals import BaseDTO, BaseResponse
@@ -43,7 +43,7 @@ class WaypointBranch:
                 header_parameters = _val
                 continue
 
-            if isinstance(_val, BaseDTO) and self.method not in ["get", "delete"]:
+            if isinstance(_val, (BaseDTO, RootModel)) and self.method not in ["get", "delete"]:
                 body = _val.model_dump_json()
                 body = json.loads(body)
                 continue
