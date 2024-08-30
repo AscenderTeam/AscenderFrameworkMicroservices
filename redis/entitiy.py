@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Self, TypeVar
+from typing import Any, Self, TypeVar
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from plugins.microservices.redis.riter import RIterable
@@ -13,7 +13,7 @@ class RedisEntity(BaseModel):
     _connection: str | None = None
 
     @classmethod
-    async def get(cls, id: int) -> Self | None:
+    async def get(cls, id: Any) -> Self | None:
         redis_engine = RedisEngineSingleton()
         if _result := await redis_engine.get(f"{cls._entityname.default}:{id}", cls._connection.default):
             return cls.model_validate_json(_result)

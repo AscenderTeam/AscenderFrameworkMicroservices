@@ -80,21 +80,20 @@ class WaypointProtectedBranch:
 
         self.format_path(request_data["paths"])
 
-        async with args[0]._context as session:
-            async with getattr(session, self.method)(self.path, params=request_data["queries"],
-                                                        json=request_data["body"], headers=headers) as _response:
-                await args[0].update_response(_response)
-                _response.close()
+        # async with args[0]._context as session:
+        _response = await getattr(args[0]._context, self.method)(self.path, params=request_data["queries"],
+                                                    json=request_data["body"], headers=headers)
+        args[0]._context.update_response(_response)
+        
+        if self.serialize_model:
+            response = await callback(*args, **kwargs)
+            if isinstance(response, HTTPResponse):
+                return self.serialize_model.model_validate(response.content)
             
-            if self.serialize_model:
-                response = await callback(*args, **kwargs)
-                if isinstance(response, HTTPResponse):
-                    return self.serialize_model.model_validate(await response.content)
-                
-                if isinstance(response, str):
-                    return self.serialize_model.model_validate_json(response)
-                
-                return self.serialize_model.model_validate(response)
+            if isinstance(response, str):
+                return self.serialize_model.model_validate_json(response)
+            
+            return self.serialize_model.model_validate(response)
         
         return await callback(*args, **kwargs)
 
