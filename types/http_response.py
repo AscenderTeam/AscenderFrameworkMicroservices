@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 class HTTPResponse(BaseModel):
     model_config: ConfigDict = {"from_attributes": True}
     status: int
-    reason: str | None
+    reason: Any | None
     version: HttpVersion | None
 
     content: Any | None
