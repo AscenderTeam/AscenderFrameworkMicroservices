@@ -2,7 +2,7 @@ from logging import getLogger
 from time import time
 from typing import TYPE_CHECKING, Unpack
 from plugins.microservices.types.http_response import HTTPResponse
-from aiohttp import ClientResponse, ClientSession, TCPConnector
+from aiohttp import ClientResponse, ClientSession, ContentTypeError, TCPConnector
 from aiohttp.typedefs import StrOrURL
 from aiohttp.client import _RequestOptions
 from contextvars import ContextVar
@@ -65,8 +65,11 @@ class WaypointContext:
 
         # Executing wrapped function
         _response = await self._execute_request("post", url, **kwargs)
-        _response_body = await _response.json()
-
+        try:
+            _response_body = await _response.json()
+        except ContentTypeError:
+            _response_body = await _response.text()
+            
         # Defining response time
         response_time = time()
 
