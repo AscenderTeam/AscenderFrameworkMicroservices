@@ -85,7 +85,7 @@ class WaypointContext:
         self.logger.debug(
             "[blue] HTTP transaction details: [/blue]" \
             f"[cyan] Request: [bold]POST[/bold] {_response.url} [/cyan] " \
-            f"[green] Headers: {kwargs['headers']} | Body: {kwargs['json'] or kwargs['data']} [/green] " \
+            f"[green] Headers: {kwargs.get('headers')} | Body: {kwargs.get('json') or kwargs.get('data')} [/green] " \
             f"[yellow] Response: Status [bold]{_response.status}[/bold] | Headers: {_response.headers} | Body: {_response_body} [/yellow]" \
         )
         return HTTPResponse(status=_response.status, 
@@ -120,7 +120,7 @@ class WaypointContext:
         self.logger.debug(
             "[blue] HTTP transaction details: [/blue]" \
             f"[cyan] Request: [bold]PUT[/bold] {_response.url} [/cyan] " \
-            f"[green] Headers: {kwargs['headers']} | Body: {kwargs['json'] or kwargs['data']} [/green] " \
+            f"[green] Headers: {kwargs['headers']} | Body: {kwargs.get('json') or kwargs.get('data')} [/green] " \
             f"[yellow] Response: Status [bold]{_response.status}[/bold] | Headers: {_response.headers} | Body: {_response_body} [/yellow]" \
         )
         return HTTPResponse(status=_response.status, 
@@ -155,7 +155,7 @@ class WaypointContext:
         self.logger.debug(
             "[blue] HTTP transaction details: [/blue]" \
             f"[cyan] Request: [bold]PATCH[/bold] {_response.url} [/cyan] " \
-            f"[green] Headers: {kwargs['headers']} | Body: {kwargs['json'] or kwargs['data']} [/green] " \
+            f"[green] Headers: {kwargs['headers']} | Body: {kwargs.get('json') or kwargs.get('data')} [/green] " \
             f"[yellow] Response: Status [bold]{_response.status}[/bold] | Headers: {_response.headers} | Body: {_response_body} [/yellow]" \
         )
         return HTTPResponse(status=_response.status, 
@@ -190,7 +190,7 @@ class WaypointContext:
         self.logger.debug(
             "[blue] HTTP transaction details: [/blue]" \
             f"[cyan] Request: [bold]DELETE[/bold] {_response.url} [/cyan] " \
-            f"[green] Headers: {kwargs['headers']} | Body: {kwargs['json'] or kwargs['data']} [/green] " \
+            f"[green] Headers: {kwargs['headers']} | Body: {kwargs.get('json') or kwargs.get('data')} [/green] " \
             f"[yellow] Response: Status [bold]{_response.status}[/bold] | Headers: {_response.headers} | Body: {_response_body} [/yellow]" \
         )
         return HTTPResponse(status=_response.status, 
@@ -248,7 +248,15 @@ class WaypointContext:
         
         else:
             session = self.session.get()
+            if session is None or session.closed:
+                session = ClientSession(**self._session_scope,
+                                    connector=TCPConnector(verify_ssl=self.ssl))
+                self.session.set(session)
+
             _response = await getattr(session, method)(url, **kwargs)
+
+            await session.close()
+            self.session.set(None)
 
         return _response
 
